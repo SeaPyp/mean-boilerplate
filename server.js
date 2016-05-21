@@ -1,3 +1,6 @@
+/* jslint node: true */
+'use strict';
+
 var express      = require('express');
 var path         = require('path');
 var logger       = require('morgan');
@@ -27,7 +30,13 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/users', require('./routes/users'));
+require('./routes/index')(app, passport);
+
+var apiRoutes = ['users'];
+
+apiRoutes.forEach(function(route) {
+  app.use( '/api/' + route, require('./routes/' + route)( express.Router() ) );
+});
 
 app.listen(config.port, function() {
   console.log('Listening on port:', config.port);
